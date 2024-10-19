@@ -1,18 +1,18 @@
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
-
 use etcetera::{choose_app_strategy, AppStrategy, AppStrategyArgs};
 use mlua::{Lua, LuaSerdeExt};
 use serde::{Deserialize, Serialize};
-use std::io::Read;
+use std::{io::Read, sync::Mutex};
+use tauri::{Manager, State};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct Config {
     foo: u32,
     bar: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct AppData {
+    config: Config,
 }
 
 fn get_config() -> Config {
@@ -46,6 +46,18 @@ fn get_config() -> Config {
     return config;
 }
 
+// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+#[tauri::command]
+fn greet(name: &str) -> String {
+    format!("Hello, {}! You've been greeted from Rust!", name)
+}
+
+#[tauri::command]
+fn test(state: State<'_, Mutex<AppData>>, st: String) -> Config {
+    println!("{st:?}");
+    return state.lock().expect("Error locking mutex").config.clone();
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let config = get_config();
@@ -53,8 +65,14 @@ pub fn run() {
     println!("{:?}", config);
 
     tauri::Builder::default()
+        .setup(|app| {
+            app.manage(Mutex::new(AppData { config }));
+
+            Ok(())
+        })
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![test])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
