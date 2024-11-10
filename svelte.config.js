@@ -9,6 +9,9 @@ const config = {
   preprocess: vitePreprocess(),
   kit: {
     adapter: adapter(),
+    alias: {
+      "$const/*": "src/lib/constants/*",
+    },
   },
 };
 

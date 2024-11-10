@@ -12,13 +12,30 @@
   "app": {
     "windows": [
       {
-        "title": "mlm",
+        "title": "Music Library Manager",
         "width": 800,
         "height": 600
       }
     ],
     "security": {
-      "csp": null
+      "csp": null,
+      "capabilities": [
+        {
+          "identifier": "create-new-windows",
+          "description": "This capability allows user to create new windows.",
+          "windows": ["main"],
+          "permissions": [
+            "core:default",
+            "core:webview:allow-create-webview-window"
+          ]
+        },
+        {
+          "identifier": "resolve-local-directories",
+          "description": "This capability allows user access local directories.",
+          "windows": ["main", "settings"],
+          "permissions": ["core:default", "core:path:allow-resolve-directory"]
+        }
+      ]
     }
   },
   "bundle": {

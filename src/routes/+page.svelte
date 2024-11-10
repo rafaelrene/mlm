@@ -1,15 +1,20 @@
 <script lang="ts">
-  import {invoke} from "@tauri-apps/api/core";
+  import {WebviewWindow} from "@tauri-apps/api/webviewWindow"
 
-  const test = async () => {
-    const config = await invoke("test", {st: "ST IS THIS..."})
+  import {WINDOWS} from "$const/windows"
 
-    debugger
+  const handleSettingsClick = async () => {
+    const settingsWindow = new WebviewWindow(WINDOWS.SETTINGS.label, {url: WINDOWS.SETTINGS.url})
+
+    settingsWindow.once('tauri://error', (e) => {
+      console.error(e)
+      throw new Error(`${WINDOWS.SETTINGS} window failed to open!`)
+    })
   }
 </script>
 
 <main class="container bg-gray-950">
   <h1>Welcome to Tauri + Svelte</h1>
 
-  <button onclick={test}>GET!</button>
+  <button onclick={handleSettingsClick} type="button">Go to settings</button>
 </main>

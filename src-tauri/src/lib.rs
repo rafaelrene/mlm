@@ -64,6 +64,8 @@ pub fn run() {
 
     println!("{:?}", config);
 
+    // TODO: Add menus here
+    // - Settings should open new window?
     tauri::Builder::default()
         .setup(|app| {
             app.manage(Mutex::new(AppData { config }));
